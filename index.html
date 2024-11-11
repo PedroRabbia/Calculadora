@@ -28,6 +28,7 @@
         table, th, td { border: 1px solid #ddd; }
         th, td { padding: 10px; text-align: center; }
         th { background-color: #4CAF50; color: white; }
+        .total { font-weight: bold; background-color: #f1f1f1; }
     </style>
 </head>
 <body>
@@ -89,6 +90,10 @@
                 <tr>
                     <td>ABONO CELULAR</td>
                     <td id="gasto-abono-celular">$0</td>
+                </tr>
+                <tr class="total">
+                    <td>Total</td>
+                    <td id="gasto-total">$0</td>
                 </tr>
             </tbody>
         </table>
@@ -184,7 +189,7 @@
                 mostrarMetaAhorro();
                 mostrarGraficos();
             } else {
-                alert("Por favor, ingresa una meta de ahorro.");
+                alert("Por favor, ingresa una meta de ahorro válida.");
             }
         }
 
@@ -210,9 +215,14 @@
                 }
             });
 
+            let totalGastos = 0;
+
             Object.keys(categorias).forEach(categoria => {
                 document.getElementById(`gasto-${categoria.toLowerCase()}`).innerText = `$${categorias[categoria].toFixed(2)}`;
+                totalGastos += categorias[categoria];
             });
+
+            document.getElementById("gasto-total").innerText = `$${totalGastos.toFixed(2)}`;
         }
 
         function mostrarGraficos() {
