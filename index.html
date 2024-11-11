@@ -3,292 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Palets - El Chiro</title>
+    <title>Finanzas Personales</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-image: url('https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.freepik.es%2Fimagen-ia-premium%2Fseleccion-quesos-sobre-fondo-negro_45872993.htm&psig=AOvVaw1yN9CvQsXmrdIHlaXuTgDH&ust=1730256458989000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCOjaguPJsokDFQAAAAAdAAAAABAE'); /* URL de la imagen de fondo de quesos */
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            color: #333;
-            padding: 20px;
-            max-width: 800px;
-            margin: auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            background-color: rgba(255, 255, 255, 0.8); /* Fondo semi-transparente */
+        body { font-family: 'Roboto', sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 500px; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; }
+        h1 { font-weight: 700; color: #4CAF50; text-align: center; }
+        h2 { font-weight: 500; color: #555; margin-top: 20px; }
+        input[type="text"], input[type="number"], select {
+            width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;
+            box-sizing: border-box; font-size: 1rem;
         }
-        h1, h2 {
-            text-align: center;
-            color: #4CAF50;
+        .boton {
+            width: 100%; padding: 12px; background-color: #4CAF50; color: white; border: none; 
+            border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: 500;
         }
-        .empleado-container {
-            position: absolute;
-            right: 20px;
-            top: 10px;
-            font-weight: bold;
-            color: #333;
-        }
-        label, input, select {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        input[type="number"], input[type="text"], select {
-            width: calc(100% - 20px);
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #resultado {
-            margin-top: 20px;
-            font-size: 1.2em;
-            text-align: center;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            display: none; /* Se mostrará después del cálculo */
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #666;
-        }
+        .boton:hover { background-color: #43a047; }
+        #saldo-actual, #ahorro, .registro { font-size: 0.9rem; color: #666; margin: 10px 0; }
+        .registro { display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding: 8px 0; }
+        #graficos-container { margin-top: 20px; }
+        canvas { max-width: 100%; }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Finanzas Personales</h1>
 
-    <h1>Calculadora de Palets</h1>
-    <div class="empleado-container" id="empleadoSeleccionado">Empleado: Desconocido</div>
-    <h2>Empresa: El Chiro</h2>
+        <h2>Saldo</h2>
+        <input type="number" id="saldo" placeholder="Ingresar saldo">
+        <button class="boton" onclick="agregarSaldo()">Agregar Saldo</button>
+        <div id="saldo-actual"></div>
 
-    <label for="empleado">Selecciona el Empleado:</label>
-    <select id="empleado" required onchange="actualizarEmpleado()">
-        <option value="">-- Selecciona un empleado --</option>
-        <option value="Javier">Javier</option>
-        <option value="Pachi">Pachi</option>
-        <option value="Tatani">Tatani</option>
-        <option value="Hugo">Hugo</option>
-        <option value="Vale">Vale</option>
-        <option value="Ramiro">Ramiro</option>
-        <option value="Maxi">Maxi</option>
-        <option value="Angel">Angel</option>
-        <option value="Pedro">Pedro</option>
-        <option value="Carlos">Carlos</option>
-        <option value="Sergio">Sergio</option>
-        <option value="David">David</option>
-        <option value="Manuel">Manuel</option>
-    </select>
+        <h2>Registrar Gasto</h2>
+        <input type="text" id="descripcion" placeholder="Descripción del gasto">
+        <input type="number" id="monto" placeholder="Monto">
+        <select id="categoria">
+            <option value="COMIDA">COMIDA</option>
+            <option value="JODA">JODA</option>
+            <option value="CIGARRILLOS">CIGARRILLOS</option>
+            <option value="AHORRO">AHORRO</option>
+            <option value="ABONO CELULAR">ABONO CELULAR</option>
+        </select>
+        <button class="boton" onclick="agregarGasto()">Agregar Gasto</button>
 
-    <label for="nombreCliente">Nombre del Cliente:</label>
-    <input type="text" id="nombreCliente" placeholder="Ingresa el nombre del cliente" required>
+        <h2>Mis Gastos</h2>
+        <div id="gastos-list"></div>
+        <button class="boton" onclick="borrarGastos()">Borrar Todos los Gastos</button>
 
-    <label for="pesoInicial">Peso Inicial (kg):</label>
-    <input type="number" id="pesoInicial" placeholder="Ingresa el peso inicial" required>
+        <h2>Ahorro</h2>
+        <p>Ingrese su meta de ahorro mensual:</p>
+        <input type="number" id="meta-ahorro" placeholder="Meta de Ahorro Mensual">
+        <button class="boton" onclick="guardarMetaAhorro()">Guardar Meta de Ahorro</button>
+        <div id="ahorro"></div>
 
-    <label for="pesoPalets">Peso de Palets a Restar (kg):</label>
-    <input type="number" id="pesoPalets" placeholder="Ingresa el peso de los palets" required>
-
-    <label for="tipoCaja">Selecciona el Tipo de Caja:</label>
-    <select id="tipoCaja" required>
-        <option value="cremoso">Caja Cremoso (0.3 kg)</option>
-        <option value="barra">Caja Barra (0.4 kg)</option>
-        <option value="reggiano">Caja Reggiano (0.7 kg)</option>
-    </select>
-
-    <label for="numCajas">Número de Cajas:</label>
-    <input type="number" id="numCajas" placeholder="Ingresa el número de cajas" required>
-
-    <label for="precioPorKilo">Precio por Kilo ($):</label>
-    <input type="number" id="precioPorKilo" placeholder="Ingresa el precio por kilo" step="0.01" required>
-
-    <button onclick="calcular()">Calcular</button>
-
-    <div id="resultado"></div>
-    <table id="tablaResultados">
-        <thead>
-            <tr>
-                <th>Descripción</th>
-                <th>Peso (kg)</th>
-            </tr>
-        </thead>
-        <tbody id="resultadosBody">
-            <tr>
-                <td>Empleado</td>
-                <td id="empleadoTabla"></td>
-            </tr>
-            <tr>
-                <td>Cliente</td>
-                <td id="nombreClienteTabla"></td>
-            </tr>
-            <tr>
-                <td>Peso Inicial</td>
-                <td id="pesoInicialTabla"></td>
-            </tr>
-            <tr>
-                <td>Peso de Palets</td>
-                <td id="pesoPaletsTabla"></td>
-            </tr>
-            <tr>
-                <td>Peso de Cajas</td>
-                <td id="pesoCajasTabla"></td>
-            </tr>
-            <tr>
-                <td><strong>Resultado Final</strong></td>
-                <td id="resultadoFinalTabla"></td>
-            </tr>
-            <tr>
-                <td><strong>Precio Total</strong></td>
-                <td id="precioTotalTabla"></td>
-            </tr>
-        </tbody>
-    </table>
-
-    <h3>Historial de Pesadas</h3>
-    <table id="historialResultados" style="display:none;">
-        <thead>
-            <tr>
-                <th>Empleado</th>
-                <th>Cliente</th>
-                <th>Peso (kg)</th>
-                <th>Precio Total ($)</th>
-            </tr>
-        </thead>
-        <tbody id="historialBody">
-            <!-- Aquí se llenará el historial -->
-        </tbody>
-    </table>
-    <div class="footer">
-        <strong>Precio Total Acumulado: </strong><span id="precioTotalAcumulado">$0.00</span>
+        <div id="graficos-container">
+            <h2>Gráficos</h2>
+            <canvas id="grafico-mensual"></canvas>
+            <canvas id="grafico-categorias" style="margin-top: 20px;"></canvas>
+        </div>
     </div>
 
-    <h3>Calculador de Stock</h3>
-    <label for="tipoProducto">Tipo de Producto:</label>
-    <input type="text" id="tipoProducto" placeholder="Ingresa el tipo de producto" required>
-
-    <label for="kilosStock">Kilos:</label>
-    <input type="number" id="kilosStock" placeholder="Ingresa la cantidad de kilos" required>
-
-    <button onclick="calcularStock()">Calcular Stock</button>
-
-    <div id="resultadoStock" style="margin-top: 20px;"></div>
-
     <script>
-        const historial = [];
-        let precioTotalAcumulado = 0; // Variable para acumular el precio total
+        document.addEventListener("DOMContentLoaded", () => {
+            mostrarSaldo();
+            mostrarGastos();
+            mostrarMetaAhorro();
+            mostrarGraficos();
+        });
 
-        function calcular() {
-            const empleado = document.getElementById('empleado').value || "Desconocido";
-            const nombreCliente = document.getElementById('nombreCliente').value || "Desconocido";
-            const pesoInicial = parseFloat(document.getElementById('pesoInicial').value) || 0;
-            const pesoPalets = parseFloat(document.getElementById('pesoPalets').value) || 0;
-            const numCajas = parseFloat(document.getElementById('numCajas').value) || 0;
-            const tipoCaja = document.getElementById('tipoCaja').value;
-            const precioPorKilo = parseFloat(document.getElementById('precioPorKilo').value) || 0;
-
-            // Peso por tipo de caja
-            let pesoCaja;
-            switch (tipoCaja) {
-                case 'cremoso':
-                    pesoCaja = 0.3;
-                    break;
-                case 'barra':
-                    pesoCaja = 0.4;
-                    break;
-                case 'reggiano':
-                    pesoCaja = 0.7;
-                    break;
-                default:
-                    pesoCaja = 0;
+        function agregarSaldo() {
+            const saldo = parseFloat(document.getElementById("saldo").value);
+            if (saldo) {
+                let saldoActual = parseFloat(localStorage.getItem("saldo")) || 0;
+                saldoActual += saldo;
+                localStorage.setItem("saldo", saldoActual);
+                mostrarSaldo();
+                mostrarGraficos();
+                document.getElementById("saldo").value = "";
+            } else {
+                alert("Por favor, ingresa un saldo válido.");
             }
-
-            const pesoTotalCajas = pesoCaja * numCajas;
-            const resultado = pesoInicial - pesoPalets - pesoTotalCajas;
-            const precioTotal = resultado * precioPorKilo;
-
-            // Acumular el precio total
-            precioTotalAcumulado += precioTotal;
-
-            // Mostrar el resultado
-            document.getElementById('resultado').innerText = `Resultado Final: ${resultado.toFixed(2)} kg`;
-            document.getElementById('precioTotalTabla').innerText = '$' + precioTotal.toFixed(2);
-            document.getElementById('empleadoTabla').innerText = empleado;
-            document.getElementById('nombreClienteTabla').innerText = nombreCliente;
-            document.getElementById('pesoInicialTabla').innerText = pesoInicial.toFixed(2);
-            document.getElementById('pesoPaletsTabla').innerText = pesoPalets.toFixed(2);
-            document.getElementById('pesoCajasTabla').innerText = pesoTotalCajas.toFixed(2);
-            document.getElementById('resultadoFinalTabla').innerText = resultado.toFixed(2);
-
-            // Agregar al historial
-            historial.push({
-                empleado: empleado,
-                cliente: nombreCliente,
-                peso: resultado.toFixed(2),
-                precioTotal: precioTotal.toFixed(2)
-            });
-
-            // Actualizar el historial en la tabla
-            actualizarHistorial();
-            document.getElementById('tablaResultados').style.display = 'block';
-            document.getElementById('historialResultados').style.display = 'table';
-            document.getElementById('precioTotalAcumulado').innerText = '$' + precioTotalAcumulado.toFixed(2); // Actualizar precio total acumulado
         }
 
-        function actualizarHistorial() {
-            const historialBody = document.getElementById('historialBody');
-            historialBody.innerHTML = ''; // Limpiar historial existente
-            historial.forEach(entry => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${entry.empleado}</td>
-                    <td>${entry.cliente}</td>
-                    <td>${entry.peso} kg</td>
-                    <td>$${entry.precioTotal}</td>
-                `;
-                historialBody.appendChild(row);
+        function mostrarSaldo() {
+            const saldoActual = parseFloat(localStorage.getItem("saldo")) || 0;
+            document.getElementById("saldo-actual").innerText = `Saldo Actual: $${saldoActual.toFixed(2)}`;
+        }
+
+        function agregarGasto() {
+            const descripcion = document.getElementById("descripcion").value;
+            const monto = parseFloat(document.getElementById("monto").value);
+            const categoria = document.getElementById("categoria").value;
+            const fecha = new Date();
+            if (descripcion && monto) {
+                const nuevoGasto = { descripcion, monto, categoria, fecha: fecha.toISOString() };
+                let gastos = JSON.parse(localStorage.getItem("gastos")) || [];
+                gastos.push(nuevoGasto);
+                localStorage.setItem("gastos", JSON.stringify(gastos));
+                mostrarGastos();
+                mostrarGraficos();
+                document.getElementById("descripcion").value = "";
+                document.getElementById("monto").value = "";
+            } else {
+                alert("Por favor, completa ambos campos.");
+            }
+        }
+
+        function mostrarGastos() {
+            const gastosList = document.getElementById("gastos-list");
+            gastosList.innerHTML = "";
+            const gastos = JSON.parse(localStorage.getItem("gastos")) || [];
+            gastos.forEach((gasto, index) => {
+                const gastoElemento = document.createElement("div");
+                gastoElemento.classList.add("registro");
+                gastoElemento.innerHTML = `${gasto.descripcion} - ${gasto.categoria}: $${gasto.monto} <button onclick="borrarGasto(${index})">X</button>`;
+                gastosList.appendChild(gastoElemento);
             });
         }
 
-        function calcularStock() {
-            const tipoProducto = document.getElementById('tipoProducto').value || "Desconocido";
-            const kilos = parseFloat(document.getElementById('kilosStock').value) || 0;
-
-            const resultadoStock = `Producto: ${tipoProducto}, Kilos: ${kilos}`;
-            document.getElementById('resultadoStock').innerText = resultadoStock;
+        function borrarGasto(index) {
+            let gastos = JSON.parse(localStorage.getItem("gastos")) || [];
+            gastos.splice(index, 1);
+            localStorage.setItem("gastos", JSON.stringify(gastos));
+            mostrarGastos();
+            mostrarGraficos();
         }
 
-        function actualizarEmpleado() {
-            const empleado = document.getElementById('empleado').value || "Desconocido";
-            document.getElementById('empleadoSeleccionado').innerText = 'Empleado: ' + empleado;
+        function borrarGastos() {
+            localStorage.removeItem("gastos");
+            mostrarGastos();
+            mostrarGraficos();
+        }
+
+        function guardarMetaAhorro() {
+            const metaAhorro = parseFloat(document.getElementById("meta-ahorro").value);
+            if (metaAhorro) {
+                localStorage.setItem("metaAhorro", metaAhorro);
+                mostrarMetaAhorro();
+                mostrarGraficos();
+            } else {
+                alert("Por favor, ingresa una meta de ahorro.");
+            }
+        }
+
+        function mostrarMetaAhorro() {
+            const metaAhorro = parseFloat(localStorage.getItem("metaAhorro")) || 0;
+            const saldoActual = parseFloat(localStorage.getItem("saldo")) || 0;
+            const ahorro = document.getElementById("ahorro");
+            ahorro.innerHTML = saldoActual >= metaAhorro 
+                ? `¡Meta de ahorro alcanzada! Ahorro acumulado: $${saldoActual.toFixed(2)}`
+                : `Ahorro actual: $${saldoActual.toFixed(2)} de $${metaAhorro}`;
+        }
+
+        function mostrarGraficos() {
+            const gastos = JSON.parse(localStorage.getItem("gastos")) || [];
+            const metaAhorro = parseFloat(localStorage.getItem("metaAhorro")) || 0;
+            const saldoActual = parseFloat(localStorage.getItem("saldo")) || 0;
+
+            const categorias = { COMIDA: 0, JODA: 0, CIGARRILLOS: 0, AHORRO: 0, "ABONO CELULAR": 0 };
+            gastos.forEach(gasto => {
+                if (categorias[gasto.categoria] !== undefined) {
+                    categorias[gasto.categoria] += gasto.monto;
+                }
+            });
+
+            const ctxMensual = document.getElementById("grafico-mensual").getContext("2d");
+            new Chart(ctxMensual, {
+                type: "bar",
+                data: {
+                    labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+                    datasets: [{
+                        label: "Gastos Mensuales ($)",
+                        data: Array(12).fill(0), // Modifica según tus necesidades de datos mensuales
+                        backgroundColor: "rgba(75, 192, 192, 0.6)"
+                    }]
+                }
+            });
+
+            const ctxCategorias = document.getElementById("grafico-categorias").getContext("2d");
+            new Chart(ctxCategorias, {
+                type: "pie",
+                data: {
+                    labels: Object.keys(categorias),
+                    datasets: [{
+                        label: "Gastos por Categoría",
+                        data: Object.values(categorias),
+                        backgroundColor: [
+                            "rgba(255, 99, 132, 0.6)",
+                            "rgba(54, 162, 235, 0.6)",
+                            "rgba(255, 206, 86, 0.6)",
+                            "rgba(75, 192, 192, 0.6)",
+                            "rgba(153, 102, 255, 0.6)"
+                        ]
+                    }]
+                }
+            });
         }
     </script>
-
 </body>
 </html>
