@@ -215,7 +215,6 @@
             });
 
             let totalGastos = 0;
-
             Object.keys(categorias).forEach(categoria => {
                 document.getElementById(`gasto-${categoria.toLowerCase()}`).innerText = `$${categorias[categoria].toFixed(2)}`;
                 totalGastos += categorias[categoria];
